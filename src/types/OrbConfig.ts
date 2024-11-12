@@ -21,5 +21,5 @@ export const defaultOrbConfig: OrbConfig = {
   showParticles: true,
   showGlowEffects: true,
   showShadow: true,
-  speed: 50,
+  speed: 60,
 };

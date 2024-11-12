@@ -10,17 +10,66 @@ interface OrbProps {
   style?: React.CSSProperties;
 }
 
+const MaskedWavyBlob: React.FC<{
+  color: string;
+  speed: number;
+  size?: number;
+  offsetY?: number;
+  opacity?: number;
+  wavyOrbSpeedMultiplier?: number;
+  direction?: "clockwise" | "counterclockwise";
+}> = ({
+  color,
+  speed,
+  size = 1.875,
+  offsetY = 0.31,
+  opacity = 1,
+  wavyOrbSpeedMultiplier = 1.5,
+  direction = "clockwise",
+}) => {
+  return (
+    <div
+      className="absolute inset-0"
+      style={{
+        filter: "blur(1px)",
+        mixBlendMode: "plus-lighter",
+        opacity,
+      }}
+    >
+      <div className="absolute inset-0">
+        <div className="relative w-full h-full">
+          <RotatingGlow
+            color={color}
+            rotationSpeed={speed}
+            direction={direction}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              maskImage: "url(#wavyBlobMask)",
+              transform: `scale(${size}) translateY(${offsetY * 100}%)`,
+            }}
+          >
+            <WavyBlob
+              color="white"
+              loopDuration={(60 / speed) * wavyOrbSpeedMultiplier}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Orb: React.FC<OrbProps> = ({
   config: userConfig,
   className,
   style,
 }) => {
   const config = { ...defaultOrbConfig, ...userConfig };
-  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
-      ref={containerRef}
       className={`relative aspect-square ${className || ""}`}
       style={{
         ...style,
@@ -28,7 +77,7 @@ export const Orb: React.FC<OrbProps> = ({
       }}
     >
       <div className="absolute inset-0 rounded-full overflow-hidden">
-        {/* {config.showBackground && (
+        {config.showBackground && (
           <div
             className="absolute inset-0"
             style={{
@@ -37,24 +86,27 @@ export const Orb: React.FC<OrbProps> = ({
               )})`,
             }}
           />
-        )} */}
-
-        {/* {config.showGlowEffects && (
-          <RotatingGlow color={config.glowColor} speed={config.speed} />
-        )} */}
+        )}
 
         {config.showWavyBlobs && (
           <>
-            <WavyBlob
-              color={config.glowColor}
-              speed={config.speed}
+            <MaskedWavyBlob
+              color={"#ffffffbf"}
+              speed={config.speed * 1.5}
+              size={1.875}
+              offsetY={0.31}
               direction="clockwise"
+              wavyOrbSpeedMultiplier={1.75}
             />
-            {/* <WavyBlob 
-              color={config.glowColor}
+            <MaskedWavyBlob
+              color={"white"}
               speed={config.speed * 0.75}
+              opacity={0.5}
+              size={1.25}
+              offsetY={-0.31}
               direction="counterclockwise"
-            /> */}
+              wavyOrbSpeedMultiplier={2.25}
+            />
           </>
         )}
 
