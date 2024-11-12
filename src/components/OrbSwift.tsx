@@ -248,12 +248,26 @@ export const Orb: React.FC<OrbProps> = ({
           />
         )}
 
-        {/* {config.showParticles && (
-          <ParticlesCanvas
-            color={config.particleColor}
-            speed={config.speed}
-          />
-        )} */}
+        {config.showParticles && (
+          <>
+            <ParticlesCanvas
+              color={config.particleColor}
+              speed={config.speed}
+              speedRange={[10, 20]}
+              sizeRange={[0.5, 1]}
+              particleCount={10}
+              opacityRange={[0, 0.3]}
+            />
+            <ParticlesCanvas
+              color={config.particleColor}
+              speed={config.speed}
+              speedRange={[20, 30]}
+              sizeRange={[0.2, 1]}
+              particleCount={10}
+              opacityRange={[0.3, 0.8]}
+            />
+          </>
+        )}
       </div>
 
       {/* {config.showShadow && (
