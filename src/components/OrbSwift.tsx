@@ -127,6 +127,68 @@ const BaseDepthGlows: React.FC<{
   );
 };
 
+const CoreGlowEffects: React.FC<{
+  glowColor: string;
+  speed: number;
+  coreGlowIntensity: number;
+}> = ({ glowColor, speed, coreGlowIntensity }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateSize = () => {
+      const element = containerRef.current;
+      if (!element) return;
+      setSize(element.offsetWidth);
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0"
+      style={{
+        // padding: `8%`,
+        padding: `${size * 0.08}px`,
+        // mixBlendMode: "plus-lighter",
+      }}
+    >
+      <div
+        style={{
+          filter: `blur(${size * 0.08}px)`,
+          opacity: coreGlowIntensity,
+        }}
+      >
+        <RotatingGlow
+          color={glowColor}
+          rotationSpeed={speed * 3}
+          direction="clockwise"
+        />
+      </div>
+      <div
+        style={{
+          filter: `blur(${size * 0.06}px)`,
+          opacity: coreGlowIntensity,
+          mixBlendMode: "plus-lighter",
+        }}
+      >
+        <RotatingGlow
+          color={glowColor}
+          rotationSpeed={speed * 2.3}
+          direction="clockwise"
+        />
+      </div>
+    </div>
+  );
+};
+
 export const Orb: React.FC<OrbProps> = ({
   config: userConfig,
   className,
@@ -176,6 +238,14 @@ export const Orb: React.FC<OrbProps> = ({
               wavyOrbSpeedMultiplier={2.25}
             />
           </>
+        )}
+
+        {config.showGlowEffects && (
+          <CoreGlowEffects
+            glowColor={config.glowColor}
+            speed={config.speed}
+            coreGlowIntensity={config.coreGlowIntensity}
+          />
         )}
 
         {/* {config.showParticles && (

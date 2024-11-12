@@ -15,7 +15,7 @@ export const defaultOrbConfig: OrbConfig = {
   backgroundColors: ["#22d3ee", "#818cf8", "#f472b6"],
   glowColor: "#ffffff",
   particleColor: "#ffffff",
-  coreGlowIntensity: 1.2,
+  coreGlowIntensity: 1.0,
   showBackground: true,
   showWavyBlobs: true,
   showParticles: true,
