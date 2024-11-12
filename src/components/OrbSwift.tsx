@@ -231,103 +231,144 @@ const RealisticInnerGlows: React.FC = () => {
   );
 };
 
+const RealisticShadows: React.FC<{
+  colors: string[];
+  radius: number;
+}> = ({ colors, radius }) => {
+  return (
+    <>
+      {/* First shadow layer */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background: `linear-gradient(to top, ${colors.join(", ")})`,
+          filter: `blur(${radius * 0.75}px)`,
+          borderRadius: "50%",
+          opacity: 0.5,
+          transform: `translateY(${radius * 0.5}px)`,
+        }}
+      />
+      {/* Second shadow layer */}
+      <div
+        className="absolute inset-0 -z-20"
+        style={{
+          background: `linear-gradient(to top, ${colors.join(", ")})`,
+          filter: `blur(${radius * 3}px)`,
+          borderRadius: "50%",
+          opacity: 0.3,
+          transform: `translateY(${radius * 0.75}px)`,
+        }}
+      />
+    </>
+  );
+};
+
 export const Orb: React.FC<OrbProps> = ({
   config: userConfig,
   className,
   style,
 }) => {
   const config = { ...defaultOrbConfig, ...userConfig };
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    const updateSize = () => {
+      const element = containerRef.current;
+      if (!element) return;
+      setSize(element.offsetWidth);
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   return (
-    <div
-      className={`relative aspect-square ${className || ""}`}
-      style={{
-        ...style,
-        isolation: "isolate",
-      }}
-    >
-      <div className="absolute inset-0 rounded-full overflow-hidden">
-        {config.showBackground && (
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(to top, ${config.backgroundColors.join(
-                ", "
-              )})`,
-            }}
-          />
-        )}
-
-        <BaseDepthGlows glowColor={config.glowColor} speed={config.speed} />
-
-        {config.showWavyBlobs && (
-          <>
-            <MaskedWavyBlob
-              color={"#ffffffbf"}
-              speed={config.speed * 1.5}
-              size={1.875}
-              offsetY={0.31}
-              direction="clockwise"
-              wavyOrbSpeedMultiplier={1.75}
-            />
-            <MaskedWavyBlob
-              color={"white"}
-              speed={config.speed * 0.75}
-              opacity={0.5}
-              size={1.25}
-              offsetY={-0.31}
-              direction="counterclockwise"
-              wavyOrbSpeedMultiplier={2.25}
-            />
-          </>
-        )}
-
-        {config.showGlowEffects && (
-          <CoreGlowEffects
-            glowColor={config.glowColor}
-            speed={config.speed}
-            coreGlowIntensity={config.coreGlowIntensity}
-          />
-        )}
-
-        {config.showParticles && (
-          <>
-            <ParticlesCanvas
-              color={config.particleColor}
-              speed={config.speed}
-              speedRange={[10, 20]}
-              sizeRange={[0.5, 1]}
-              particleCount={10}
-              opacityRange={[0, 0.3]}
-            />
-            <ParticlesCanvas
-              color={config.particleColor}
-              speed={config.speed}
-              speedRange={[20, 30]}
-              sizeRange={[0.2, 1]}
-              particleCount={10}
-              opacityRange={[0.3, 0.8]}
-            />
-          </>
-        )}
-      </div>
-
-      <RealisticInnerGlows />
-
-      {/* {config.showShadow && (
-        <div
-          className="absolute inset-0 -z-10"
-          style={{
-            background: `radial-gradient(circle, ${
-              config.backgroundColors[0]
-            } 0%, ${config.backgroundColors.map(
-              (color) => color + "00"
-            )} 100%)`,
-            filter: `blur(${8}%)`,
-            transform: "scale(1.2)",
-          }}
+    <div className="relative" style={{ isolation: "isolate" }}>
+      {config.showShadow && (
+        <RealisticShadows
+          colors={config.backgroundColors}
+          radius={size * 0.08}
         />
-      )} */}
+      )}
+
+      <div
+        ref={containerRef}
+        className={`relative aspect-square ${className || ""}`}
+        style={{
+          ...style,
+        }}
+      >
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          {config.showBackground && (
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(to top, ${config.backgroundColors.join(
+                  ", "
+                )})`,
+              }}
+            />
+          )}
+
+          <BaseDepthGlows glowColor={config.glowColor} speed={config.speed} />
+
+          {config.showWavyBlobs && (
+            <>
+              <MaskedWavyBlob
+                color={"#ffffffbf"}
+                speed={config.speed * 1.5}
+                size={1.875}
+                offsetY={0.31}
+                direction="clockwise"
+                wavyOrbSpeedMultiplier={1.75}
+              />
+              <MaskedWavyBlob
+                color={"white"}
+                speed={config.speed * 0.75}
+                opacity={0.5}
+                size={1.25}
+                offsetY={-0.31}
+                direction="counterclockwise"
+                wavyOrbSpeedMultiplier={2.25}
+              />
+            </>
+          )}
+
+          {config.showGlowEffects && (
+            <CoreGlowEffects
+              glowColor={config.glowColor}
+              speed={config.speed}
+              coreGlowIntensity={config.coreGlowIntensity}
+            />
+          )}
+
+          {config.showParticles && (
+            <>
+              <ParticlesCanvas
+                color={config.particleColor}
+                speed={config.speed}
+                speedRange={[10, 20]}
+                sizeRange={[0.5, 1]}
+                particleCount={10}
+                opacityRange={[0, 0.3]}
+              />
+              <ParticlesCanvas
+                color={config.particleColor}
+                speed={config.speed}
+                speedRange={[20, 30]}
+                sizeRange={[0.2, 1]}
+                particleCount={10}
+                opacityRange={[0.3, 0.8]}
+              />
+            </>
+          )}
+        </div>
+
+        <RealisticInnerGlows />
+      </div>
     </div>
   );
 };
