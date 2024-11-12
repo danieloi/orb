@@ -39,26 +39,26 @@ export const Orb: React.FC<OrbProps> = ({
           />
         )} */}
 
-        {config.showGlowEffects && (
+        {/* {config.showGlowEffects && (
           <RotatingGlow color={config.glowColor} speed={config.speed} />
-        )}
+        )} */}
 
-        {/* {config.showWavyBlobs && (
+        {config.showWavyBlobs && (
           <>
-            <WavyBlob 
+            <WavyBlob
               color={config.glowColor}
               speed={config.speed}
               direction="clockwise"
             />
-            <WavyBlob 
+            {/* <WavyBlob 
               color={config.glowColor}
               speed={config.speed * 0.75}
               direction="counterclockwise"
-            />
+            /> */}
           </>
         )}
 
-        {config.showParticles && (
+        {/* {config.showParticles && (
           <ParticlesCanvas
             color={config.particleColor}
             speed={config.speed}
