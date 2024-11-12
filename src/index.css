@@ -6,6 +6,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -15,7 +16,13 @@
   from {
     transform: rotate(360deg);
   }
+
   to {
     transform: rotate(0deg);
   }
+}
+
+/* Apply the animation using Tailwind's @apply directive */
+.animate-rotate {
+  @apply animate-[rotate_6s_linear_infinite];
 }

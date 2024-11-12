@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-type RotationDirection = 'clockwise' | 'counterclockwise';
+type RotationDirection = "clockwise" | "counterclockwise";
 
 interface RotatingGlowProps {
   color: string;
@@ -11,43 +11,66 @@ interface RotatingGlowProps {
 export const RotatingGlow: React.FC<RotatingGlowProps> = ({
   color,
   speed,
-  direction = 'clockwise'
+  direction = "clockwise",
 }) => {
-  const rotationMultiplier = direction === 'clockwise' ? 1 : -1;
+  const rotationMultiplier = direction === "clockwise" ? 1 : -1;
 
   return (
-    <div className="relative w-full h-full">
-      <div
-        className="absolute inset-0 flex justify-center items-center"
-        style={{
-          animation: `rotate ${360 / speed}s linear infinite`,
-          '--rotation-end': `${360 * rotationMultiplier}deg`,
-        } as React.CSSProperties}
+    <div className="relative w-full h-full animate-rotate ">
+      {/* <!-- SVG Filter --> */}
+      <svg
+        width="100%"
+        height="100%"
+        xmlns="http://www.w3.org/2000/svg"
+        className="absolute top-0 left-0"
       >
-        <div
-          className="w-full h-full"
-          style={{
-            background: color,
-            WebkitClipPath: 'circle(50%)',
-            clipPath: 'circle(50%)',
-            filter: 'blur(16%)',
-            position: 'relative',
-          }}
+        {/* First circle that will be masked */}
+        <defs>
+          <filter id="blurMask">
+            <feGaussianBlur
+              in="SourceGraphic"
+              stdDeviation={256 * 0.16}
+              result="blur1"
+            />
+          </filter>
+
+          <filter id="offsetBlur">
+            <feGaussianBlur
+              in="SourceGraphic"
+              stdDeviation={256 * 0.16}
+              result="blur2"
+            />
+            <feOffset in="blur2" dy={256 * 0.31} result="offset" />
+            {/* <feOffset in="SourceGraphic" dy={256 * 0.31} result="offset" /> */}
+          </filter>
+          {/* Updated mask filter */}
+          <mask id="circleMask">
+            <circle
+              // filter="url(#blurMask)"
+              fill="white"
+              cx="50%"
+              cy="50%"
+              r="50%"
+            />
+            <circle
+              fill="black"
+              filter="url(#offsetBlur)"
+              cx="50%"
+              cy="50%"
+              r="65.5%"
+            />
+          </mask>
+        </defs>
+
+        {/* Apply the mask to the first circle */}
+        <circle
+          fill={color}
+          cx="50%"
+          cy="50%"
+          r="50%"
+          mask="url(#circleMask)"
         />
-        <div
-          className="absolute"
-          style={{
-            width: '131%',
-            height: '131%',
-            top: '31%',
-            background: color,
-            WebkitClipPath: 'circle(50%)',
-            clipPath: 'circle(50%)',
-            filter: 'blur(16%)',
-            mixBlendMode: 'destination-out',
-          }}
-        />
-      </div>
+      </svg>
     </div>
   );
 };
