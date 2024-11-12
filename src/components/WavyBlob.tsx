@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useLayoutEffect, useState } from "react";
 
 interface WavyBlobProps {
   color: string;
@@ -11,6 +11,8 @@ export const WavyBlob: React.FC<WavyBlobProps> = ({
   loopDuration = 1,
 }) => {
   const pathRef = useRef<SVGPathElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [size, setSize] = useState(0);
 
   // Create initial points similar to Swift version
   const initialPoints = Array.from({ length: 6 }, (_, index) => {
@@ -21,14 +23,21 @@ export const WavyBlob: React.FC<WavyBlobProps> = ({
     };
   });
 
+  useLayoutEffect(() => {
+    if (svgRef.current) {
+      const boundingBox = svgRef.current.getBoundingClientRect();
+      setSize(Math.min(boundingBox.width, boundingBox.height));
+    }
+  }, []);
+
   useEffect(() => {
     const path = pathRef.current;
-    if (!path) return;
+    if (!path || !size) return;
 
     // Animation parameters
-    const radius = 45;
-    const centerX = 50;
-    const centerY = 50;
+    const radius = size * 0.45;
+    const centerX = size / 2;
+    const centerY = size / 2;
     const handleLength = radius * 0.33;
 
     const animate = () => {
@@ -39,12 +48,12 @@ export const WavyBlob: React.FC<WavyBlobProps> = ({
       // Calculate points with offsets
       const adjustedPoints = initialPoints.map((point, i) => {
         const phaseOffset = (i * Math.PI) / 3;
-        const xOffset = Math.sin(angle + phaseOffset) * 7.5;
-        const yOffset = Math.cos(angle + phaseOffset) * 7.5;
+        const xOffset = Math.sin(angle + phaseOffset) * 0.15;
+        const yOffset = Math.cos(angle + phaseOffset) * 0.15;
 
         return {
-          x: centerX + (point.x - 0.5 + xOffset / 50) * radius,
-          y: centerY + (point.y - 0.5 + yOffset / 50) * radius,
+          x: centerX + (point.x - 0.5 + xOffset) * radius,
+          y: centerY + (point.y - 0.5 + yOffset) * radius,
         };
       });
 
@@ -90,12 +99,13 @@ export const WavyBlob: React.FC<WavyBlobProps> = ({
 
     const animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [loopDuration]);
+  }, [loopDuration, size]);
 
   return (
     <motion.svg
+      ref={svgRef}
       className="absolute inset-0 w-full h-full"
-      viewBox="0 0 100 100"
+      viewBox={`0 0 ${size} ${size}`}
       initial={{ scale: 0.9 }}
       animate={{ scale: 1 }}
       transition={{
@@ -108,11 +118,6 @@ export const WavyBlob: React.FC<WavyBlobProps> = ({
       <motion.path
         ref={pathRef}
         fill={color}
-        style={{
-          // filter: "blur(3px)",
-          opacity: 0.4,
-          // mixBlendMode: "plus-lighter",
-        }}
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}
         transition={{

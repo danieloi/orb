@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useLayoutEffect } from "react";
 import { OrbConfig, defaultOrbConfig } from "../types/OrbConfig";
 import { ParticlesCanvas } from "./ParticlesCanvas";
 import { WavyBlob } from "./WavyBlob";
@@ -61,6 +61,72 @@ const MaskedWavyBlob: React.FC<{
   );
 };
 
+const BaseDepthGlows: React.FC<{
+  glowColor: string;
+  speed: number;
+}> = ({ glowColor, speed }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateSize = () => {
+      const element = containerRef.current;
+      if (!element) return;
+      setSize(element.offsetWidth);
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0">
+      {/* Outer glow */}
+      <div
+        style={{
+          padding: "3%",
+        }}
+        className="absolute inset-0 "
+      >
+        <RotatingGlow
+          color={glowColor}
+          rotationSpeed={speed * 0.75}
+          direction="counterclockwise"
+          style={{
+            filter: `blur(${size * 0.06}px)`,
+            transform: "rotate(180deg)",
+          }}
+        />
+      </div>
+
+      {/* Outer ring */}
+      <div
+        className="absolute inset-0"
+        style={{
+          padding: "8px",
+          width: "94%",
+          height: "94%",
+          margin: "auto",
+        }}
+      >
+        <RotatingGlow
+          color={`${glowColor}80`} // Adding 80 for 0.5 opacity
+          rotationSpeed={speed * 0.25}
+          direction="clockwise"
+          style={{
+            filter: `blur(${size * 0.032}px)`,
+            transform: "rotate(180deg)",
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 export const Orb: React.FC<OrbProps> = ({
   config: userConfig,
   className,
@@ -87,6 +153,8 @@ export const Orb: React.FC<OrbProps> = ({
             }}
           />
         )}
+
+        <BaseDepthGlows glowColor={config.glowColor} speed={config.speed} />
 
         {config.showWavyBlobs && (
           <>

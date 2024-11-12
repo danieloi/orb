@@ -7,21 +7,34 @@ interface RotatingGlowProps {
   color: string;
   rotationSpeed: number;
   direction?: RotationDirection;
+  style?: React.CSSProperties;
 }
 
 export const RotatingGlow: React.FC<RotatingGlowProps> = ({
   color,
   rotationSpeed = 30,
   direction = "clockwise",
+  style,
 }) => {
+  const [size, setSize] = React.useState(256);
+  const svgRef = React.useRef<SVGSVGElement>(null);
   const rotationMultiplier = direction === "clockwise" ? 1 : -1;
+
+  React.useLayoutEffect(() => {
+    if (svgRef.current) {
+      const boundingBox = svgRef.current.getBoundingClientRect();
+      setSize(boundingBox.width);
+    }
+  }, []);
 
   return (
     <motion.svg
+      ref={svgRef}
       width="100%"
       height="100%"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute top-0 left-0 w-full h-full"
+      className="relative w-full h-full"
+      style={style}
       animate={{
         rotate: 360 * rotationMultiplier,
       }}
@@ -36,7 +49,7 @@ export const RotatingGlow: React.FC<RotatingGlowProps> = ({
         <filter id="blurMask">
           <feGaussianBlur
             in="SourceGraphic"
-            stdDeviation={256 * 0.16}
+            stdDeviation={size * 0.16}
             result="blur1"
           />
         </filter>
@@ -44,15 +57,15 @@ export const RotatingGlow: React.FC<RotatingGlowProps> = ({
         <filter id="offsetBlur">
           <feGaussianBlur
             in="SourceGraphic"
-            stdDeviation={256 * 0.16}
+            stdDeviation={size * 0.16}
             result="blur2"
           />
-          <feOffset in="blur2" dy={256 * 0.31} result="offset" />
+          <feOffset in="blur2" dy={size * 0.31} result="offset" />
         </filter>
         {/* Updated mask filter */}
         <mask id="circleMask">
           <circle
-            // filter="url(#blurMask)"
+            filter="url(#blurMask)"
             fill="white"
             cx="50%"
             cy="50%"
