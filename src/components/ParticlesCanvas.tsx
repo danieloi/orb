@@ -55,7 +55,6 @@ export const ParticlesCanvas: React.FC<ParticlesCanvasProps> = ({
       }
 
       update() {
-        const canvas = canvasRef.current!;
         this.lifetime += 0.016;
         const normalizedLife = this.lifetime / this.maxLifetime;
         if (normalizedLife < 0.2) {

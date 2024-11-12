@@ -189,6 +189,48 @@ const CoreGlowEffects: React.FC<{
   );
 };
 
+const RealisticInnerGlows: React.FC = () => {
+  return (
+    <div className="absolute inset-0 p-[1px]">
+      {/* Outer stroke with heavy blur */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "transparent",
+          border: "8px solid white",
+          borderImage: "linear-gradient(to top, white, transparent) 1",
+          filter: "blur(32px)",
+          mixBlendMode: "plus-lighter",
+        }}
+      />
+
+      {/* Inner stroke with light blur */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "transparent",
+          border: "4px solid white",
+          borderImage: "linear-gradient(to top, white, transparent) 1",
+          filter: "blur(12px)",
+          mixBlendMode: "plus-lighter",
+        }}
+      />
+
+      {/* Finest stroke */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "transparent",
+          border: "1px solid white",
+          borderImage: "linear-gradient(to top, white, transparent) 1",
+          filter: "blur(4px)",
+          mixBlendMode: "plus-lighter",
+        }}
+      />
+    </div>
+  );
+};
+
 export const Orb: React.FC<OrbProps> = ({
   config: userConfig,
   className,
@@ -270,13 +312,19 @@ export const Orb: React.FC<OrbProps> = ({
         )}
       </div>
 
+      <RealisticInnerGlows />
+
       {/* {config.showShadow && (
         <div
           className="absolute inset-0 -z-10"
           style={{
-            background: `radial-gradient(circle, ${config.backgroundColors[0]}40 0%, transparent 70%)`,
-            filter: "blur(20px)",
-            transform: "translateY(10%)",
+            background: `radial-gradient(circle, ${
+              config.backgroundColors[0]
+            } 0%, ${config.backgroundColors.map(
+              (color) => color + "00"
+            )} 100%)`,
+            filter: `blur(${8}%)`,
+            transform: "scale(1.2)",
           }}
         />
       )} */}
